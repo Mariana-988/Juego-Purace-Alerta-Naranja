@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia de Prevención: Volcán Puracé</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            max-width: 650px;
+            width: 100%;
+            padding: 30px;
+            border-top: 8px solid #ff6f00;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            color: #d84315;
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .meta-info {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .trivia-card {
+            margin-bottom: 20px;
+        }
+
+        .question-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .question-en {
+            font-style: italic;
+            color: #00796b;
+            font-size: 0.95rem;
+            margin-bottom: 15px;
+        }
+
+        .options-btn {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button.btn-option {
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            padding: 12px 15px;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        button.btn-option:hover {
+            background-color: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        button.correct {
+            background-color: #c8e6c9 !important;
+            border-color: #2e7d32 !important;
+            color: #1b5e20;
+            font-weight: bold;
+        }
+
+        button.incorrect {
+            background-color: #ffcdd2 !important;
+            border-color: #c62828 !important;
+            color: #b71c1c;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .feedback.error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 25px;
+        }
+
+        .btn-next {
+            background-color: #ff6f00;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-next:hover {
+            background-color: #e65100;
+        }
+
+        .score-board {
+            text-align: center;
+            display: none;
+        }
+
+        .score-board h2 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        footer {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Trivia de Prevención: Alerta Naranja Volcán Puracé</h1>
+        <div class="meta-info">
+            <p><strong>Estudiante:</strong> Juan Sebastián Puliche Chaguendo</p>
+            <p><strong>I.E.:</strong> Manuel María Mosquera | <strong>Ubicación:</strong> Puracé-Cauca</p>
+            <p><strong>Componente:</strong> Inglés | <strong>Docente:</strong> Álvaro Stid Bolaños Vásquez</p>
+        </div>
+    </header>
+
+    <div id="quiz-screen">
+        <div class="trivia-card">
+            <div id="question-es" class="question-title">Cargando pregunta...</div>
+            <div id="question-en" class="question-en">Loading question...</div>
+            <div id="options" class="options-btn"></div>
+            <div id="feedback" class="feedback"></div>
+        </div>
+
+        <div class="controls">
+            <span id="progress">Pregunta 1 de 4</span>
+            <button id="next-btn" class="btn-next" onclick="nextQuestion()" style="display:none;">Siguiente</button>
+        </div>
+    </div>
+
+    <div id="score-screen" class="score-board">
+        <h2>¡Trivia Finalizada!</h2>
+        <p id="score-text"></p>
+        <button class="btn-next" style="margin-top:15px;" onclick="restartQuiz()">Intentar de nuevo</button>
+    </div>
+
+    <footer>
+        Proyecto de Tecnología e Inglés - Prevención Puracé
+    </footer>
+</div>
+
+<script>
+    const questions = [
+        {
+            es: "¿Qué significa una 'Alerta Naranja' en el volcán Puracé?",
+            en: "What does an 'Orange Alert' mean for the Puracé volcano?",
+            options: [
+                { text: "Erupción probable en días o semanas (Probable eruption in days or weeks)", correct: true },
+                { text: "El volcán está totalmente apagado (The volcano is completely inactive)", correct: false },
+                { text: "Sin peligro para la comunidad (No danger to the community)", correct: false }
+            ],
+            explanation: "La Alerta Naranja indica un incremento significativo en la actividad sísmica y gases."
+        },
+        {
+            es: "¿Qué elemento es fundamental para proteger las vías respiratorias ante la caída de ceniza?",
+            en: "What item is essential to protect airways during ash fall?",
+            options: [
+                { text: "Lentes de sol (Sunglasses)", correct: false },
+                { text: "Tapabocas o pañuelo húmedo (Face mask or damp cloth)", correct: true },
+                { text: "Casco de seguridad (Safety helmet)", correct: false }
+            ],
+            explanation: "Usar tapabocas o un paño húmedo evita inhalar partículas de ceniza volcánica."
+        },
+        {
+            es: "¿Qué elemento debe incluir la mochila de emergencia?",
+            en: "What item should be included in the emergency backpack?",
+            options: [
+                { text: "Juegos de mesa (Board games)", correct: false },
+                { text: "Kit de primeros auxilios y agua (First aid kit and bottled water)", correct: true },
+                { text: "Ropa formal (Formal clothes)", correct: false }
+            ],
+            explanation: "El kit de primeros auxilios, agua y alimentos no perecederos son indispensables."
+        },
+        {
+            es: "¿Por qué se deben seguir únicamente los canales oficiales?",
+            en: "Why should you only follow official channels?",
+            options: [
+                { text: "Para evitar la difusión de rumores falsos (To avoid spreading false rumors)", correct: true },
+                { text: "Para ver fotos del paisaje (To see photos of the landscape)", correct: false },
+                { text: "No es importante seguirlos (It is not important to follow them)", correct: false }
+            ],
+            explanation: "Los canales oficiales entregan información precisa sobre las rutas de evacuación."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function showQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById('question-es').innerText = (currentQuestionIndex + 1) + ". " + q.es;
+        document.getElementById('question-en').innerText = "English: " + q.en;
+        document.getElementById('progress').innerText = `Pregunta ${currentQuestionIndex + 1} de ${questions.length}`;
+        
+        const optionsContainer = document.getElementById('options');
+        optionsContainer.innerHTML = '';
+        
+        const feedback = document.getElementById('feedback');
+        feedback.className = 'feedback';
+        feedback.style.display = 'none';
+
+        document.getElementById('next-btn').style.display = 'none';
+
+        q.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-option';
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(btn, opt.correct, q.explanation);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(selectedBtn, isCorrect, explanation) {
+        const buttons = document.querySelectorAll('.btn-option');
+        buttons.forEach(btn => btn.disabled = true);
+
+        const feedback = document.getElementById('feedback');
+
+        if(isCorrect) {
+            selectedBtn.classList.add('correct');
+            feedback.innerText = "¡Correcto! " + explanation;
+            feedback.className = "feedback show success";
+            score++;
+        } else {
+            selectedBtn.classList.add('incorrect');
+            feedback.innerText = "Incorrecto. " + explanation;
+            feedback.className = "feedback show error";
+        }
+
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if(currentQuestionIndex < questions.length) {
+            showQuestion();
+        } else {
+            showScore();
+        }
+    }
+
+    function showScore() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        const scoreScreen = document.getElementById('score-screen');
+        scoreScreen.style.display = 'block';
+        document.getElementById('score-text').innerText = `Puntaje obtenido: ${score} de ${questions.length} respuestas correctas.`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById('score-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        showQuestion();
+    }
+
+    showQuestion();
+</script>
+
+</body>
+</html>
